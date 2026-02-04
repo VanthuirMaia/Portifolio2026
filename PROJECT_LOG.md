@@ -32,6 +32,7 @@ API backend profissional para gerenciamento de portfólio, construída com FastA
 **Git Commits:**
 - `5ccc5d0` - feat(core): add application settings with pydantic-settings
 - `15b43ba` - feat(core): configure SQLAlchemy engine and session
+- `8721234` - feat(api): setup FastAPI application with CORS and health check
 
 **Resumo da Implementação:**
 
@@ -54,6 +55,16 @@ Esta fase inicial estabeleceu toda a fundação da API Portfolio:
 5. **Utilitários** - Função `generate_slug()` para converter títulos em slugs URL-friendly, com remoção de acentos, normalização Unicode, e tratamento de caracteres especiais.
 
 6. **Qualidade de Código** - Type hints completos, docstrings detalhadas, tratamento de erros com HTTPException (404, 400), validação de slug único, e padrão de dependency injection.
+
+7. **Docker & Containerização** - Setup completo para desenvolvimento com Docker:
+   - Dockerfile multi-stage otimizado para produção
+   - docker-compose.yml com PostgreSQL 15 e API
+   - Health checks para database e aplicação
+   - Hot reload para desenvolvimento
+   - Volume persistente para dados do PostgreSQL
+   - docker-compose.override.yml.example com pgAdmin
+   - .dockerignore para builds otimizados
+   - README.md completo com instruções Docker
 
 
 #### ✅ Estrutura Base Criada

@@ -1,0 +1,72 @@
+# Docker Compose Override Example for Local Development
+# Copy this file to docker-compose.override.yml and customize as needed
+# docker-compose.override.yml is automatically loaded and gitignored
+
+version: '3.8'
+
+services:
+  db:
+    # Expose PostgreSQL port to host for direct database access
+    ports:
+      - "5433:5432"  # Use different port to avoid conflicts
+    
+    # Additional environment variables for development
+    environment:
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    
+    # Enable query logging for debugging
+    command: 
+      - "postgres"
+      - "-c"
+      - "log_statement=all"
+      - "-c"
+      - "log_connections=on"
+      - "-c"
+      - "log_disconnections=on"
+
+  api:
+    # Override build for faster development iterations
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder  # Use builder stage for development tools
+    
+    # Additional environment variables for development
+    environment:
+      DEBUG: "True"
+      LOG_LEVEL: "debug"
+    
+    # Mount additional volumes for development
+    volumes:
+      - .:/app
+      - /app/__pycache__
+      - /app/.pytest_cache
+    
+    # Override command for development with more verbose output
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    
+    # Enable stdin and tty for interactive debugging
+    stdin_open: true
+    tty: true
+
+# Optional: Add pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: portfolio_pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@portfolio.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - portfolio_network
+    depends_on:
+      - db
+
+volumes:
+  pgadmin_data:
+    driver: local

@@ -6,6 +6,7 @@ __pycache__/
 .Python
 env/
 venv/
+.venv/
 ENV/
 build/
 develop-eggs/
@@ -40,12 +41,14 @@ wheels/
 *.sqlite
 *.sqlite3
 
-# Alembic
-alembic.ini
+# Alembic - keep alembic.ini in repo
+# alembic.ini is needed for migrations
 
 # Docker
 *.log
+docker-compose.override.yml
 
 # OS
 .DS_Store
 Thumbs.db
+

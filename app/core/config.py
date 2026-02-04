@@ -23,10 +23,10 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     
     # Database Configuration
-    DATABASE_URL: str
+    DATABASE_URL: str = "postgresql://portfolio:portfolio_dev_password@localhost:5432/portfolio_db"
     
     # Security Configuration
-    SECRET_KEY: str
+    SECRET_KEY: str = "dev-secret-key-change-in-production-please"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
