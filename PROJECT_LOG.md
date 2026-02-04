@@ -99,6 +99,47 @@ API backend profissional para gerenciamento de portfólio, construída com FastA
   - Cache de testes
   - Logs
 
+#### ✅ Entidade Project Implementada
+
+**1. `app/models/project.py`**
+- Modelo SQLAlchemy completo para projetos de portfólio
+- Campos implementados:
+  - `id` - Primary key com autoincrement
+  - `title` - String(200), not null, indexed
+  - `slug` - String(200), unique, not null, indexed
+  - `short_description` - String(500) para resumo
+  - `long_description` - Text para descrição em markdown
+  - `tech_stack` - ARRAY(String) para lista de tecnologias (PostgreSQL)
+  - `project_type` - String(50) com tipos: data_engineering, ml_ai, web, automation, saas
+  - `status` - String(20) com valores: active, archived, draft (default: active)
+  - `github_url` - String(500), nullable
+  - `demo_url` - String(500), nullable
+  - `image_url` - String(500), nullable
+  - `featured` - Boolean, default=False
+  - `created_at` - DateTime com default func.now()
+  - `updated_at` - DateTime com default func.now() e onupdate
+- Índices criados em `title` e `slug` para performance
+- `__repr__` implementado para debugging
+
+**2. `app/schemas/project.py`**
+- Schemas Pydantic v2 completos:
+  - `ProjectBase` - Schema base com campos compartilhados e validações
+  - `ProjectCreate` - Para criação (POST), sem id e timestamps
+  - `ProjectUpdate` - Para atualização (PATCH/PUT), todos campos opcionais
+  - `ProjectInDB` - Representação completa do banco com `from_attributes=True`
+  - `ProjectPublic` - Schema de resposta pública (herda de ProjectInDB)
+  - `ProjectListResponse` - Schema para listagem paginada
+- Validações implementadas:
+  - Tamanhos mínimos e máximos de strings
+  - Regex patterns para `project_type` e `status`
+  - Validação de URLs
+  - Campos obrigatórios vs opcionais
+
+**3. Exports configurados:**
+- `app/models/__init__.py` - Exporta `Project`
+- `app/schemas/__init__.py` - Exporta todos os schemas do projeto
+
+
 ---
 
 ## 🏗️ Estrutura do Projeto
@@ -117,9 +158,11 @@ portfolio-api/
 │   │   ├── config.py           # ✅ Configurações
 │   │   └── database.py         # ✅ Setup SQLAlchemy
 │   ├── models/
-│   │   └── __init__.py         # Modelos de banco (a implementar)
+│   │   ├── __init__.py         # ✅ Exports
+│   │   └── project.py          # ✅ Modelo Project
 │   ├── schemas/
-│   │   └── __init__.py         # Schemas Pydantic (a implementar)
+│   │   ├── __init__.py         # ✅ Exports
+│   │   └── project.py          # ✅ Schemas Project
 │   └── db/
 │       └── __init__.py         # Utilitários DB (a implementar)
 ├── alembic/
@@ -217,8 +260,8 @@ BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:8000
 ## 🎯 Próximos Passos
 
 ### Prioridade Alta
-- [ ] Criar modelos de banco de dados em `app/models/`
-- [ ] Criar schemas Pydantic em `app/schemas/`
+- [x] Criar modelos de banco de dados em `app/models/`
+- [x] Criar schemas Pydantic em `app/schemas/`
 - [ ] Implementar routers em `app/api/v1/`
 - [ ] Configurar Alembic para migrações
 - [ ] Criar primeira migração do banco de dados
@@ -252,6 +295,7 @@ BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:8000
 2. **Configuração Centralizada:** Todas as configs em `app/core/config.py`
 3. **Session Management:** Uso de context manager para sessões de banco de dados
 4. **CORS Flexível:** Configuração via variável de ambiente para diferentes ambientes
+5. **PostgreSQL ARRAY:** Uso de `ARRAY(String)` para `tech_stack` ao invés de JSON para melhor performance em queries
 
 ---
 
