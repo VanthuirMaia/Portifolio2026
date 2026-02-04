@@ -29,6 +29,33 @@ API backend profissional para gerenciamento de portfólio, construída com FastA
 
 ### 2026-02-03 - Inicialização do Projeto
 
+**Git Commits:**
+- `5ccc5d0` - feat(core): add application settings with pydantic-settings
+- `15b43ba` - feat(core): configure SQLAlchemy engine and session
+
+**Resumo da Implementação:**
+
+Esta fase inicial estabeleceu toda a fundação da API Portfolio:
+
+1. **Infraestrutura Base** - Estrutura de pastas profissional, configuração com pydantic-settings, e setup completo do SQLAlchemy com dependency injection.
+
+2. **Modelo de Dados** - Entidade `Project` completa com 14 campos, incluindo metadados, URLs, tech stack (usando PostgreSQL ARRAY), tipos de projeto, status, e timestamps automáticos. Índices criados em `title` e `slug` para otimização de queries.
+
+3. **Schemas de Validação** - Conjunto completo de schemas Pydantic v2 para diferentes casos de uso: criação, atualização completa, atualização parcial, e respostas públicas. Validações incluem regex patterns, limites de tamanho, e campos obrigatórios vs opcionais.
+
+4. **API REST Completa** - 6 endpoints implementados:
+   - `GET /api/v1/projects` - Listagem com filtros (project_type, status, featured) e paginação
+   - `GET /api/v1/projects/{id}` - Busca por ID
+   - `POST /api/v1/projects` - Criação com geração automática de slug
+   - `PUT /api/v1/projects/{id}` - Atualização completa
+   - `PATCH /api/v1/projects/{id}` - Atualização parcial
+   - `DELETE /api/v1/projects/{id}` - Remoção
+
+5. **Utilitários** - Função `generate_slug()` para converter títulos em slugs URL-friendly, com remoção de acentos, normalização Unicode, e tratamento de caracteres especiais.
+
+6. **Qualidade de Código** - Type hints completos, docstrings detalhadas, tratamento de erros com HTTPException (404, 400), validação de slug único, e padrão de dependency injection.
+
+
 #### ✅ Estrutura Base Criada
 - **Pastas criadas:**
   - `app/api/v1/` - Rotas da API versão 1
@@ -139,6 +166,40 @@ API backend profissional para gerenciamento de portfólio, construída com FastA
 - `app/models/__init__.py` - Exporta `Project`
 - `app/schemas/__init__.py` - Exporta todos os schemas do projeto
 
+#### ✅ API REST Implementada
+
+**1. `app/api/v1/projects.py`**
+- Router FastAPI completo com todos os endpoints CRUD:
+  - `GET /api/v1/projects` - Listar projetos com filtros e paginação
+    - Query params: `skip`, `limit`, `project_type`, `status`, `featured`
+    - Ordenação por `created_at` descendente
+  - `GET /api/v1/projects/{project_id}` - Buscar projeto por ID
+  - `POST /api/v1/projects` - Criar novo projeto (retorna 201)
+    - Geração automática de slug a partir do título
+    - Validação de slug único
+  - `PUT /api/v1/projects/{project_id}` - Atualização completa
+  - `PATCH /api/v1/projects/{project_id}` - Atualização parcial
+  - `DELETE /api/v1/projects/{project_id}` - Deletar projeto (retorna 204)
+- Tratamento de erros completo:
+  - HTTPException 404 para recursos não encontrados
+  - HTTPException 400 para slugs duplicados
+- Type hints completos em todos os endpoints
+- Docstrings detalhadas com exemplos de uso
+- Dependency injection com `get_db()`
+
+**2. `app/core/utils.py`**
+- Função `generate_slug(text: str) -> str`:
+  - Remove acentos usando normalização Unicode
+  - Converte para lowercase
+  - Substitui espaços por hífens
+  - Remove caracteres especiais
+  - Remove hífens duplicados
+  - Exemplos: "My Project" → "my-project", "Análise de Dados" → "analise-de-dados"
+
+**3. `app/main.py`**
+- Router de projects incluído na aplicação
+- Prefix: `/api/v1/projects`
+- Tag: `projects` para documentação automática
 
 ---
 
@@ -148,15 +209,17 @@ API backend profissional para gerenciamento de portfólio, construída com FastA
 portfolio-api/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py                 # Entry point da aplicação
+│   ├── main.py                 # ✅ Entry point com routers
 │   ├── api/
 │   │   ├── __init__.py
 │   │   └── v1/
-│   │       └── __init__.py     # Routers v1 (a implementar)
+│   │       ├── __init__.py
+│   │       └── projects.py     # ✅ Endpoints REST
 │   ├── core/
 │   │   ├── __init__.py
 │   │   ├── config.py           # ✅ Configurações
-│   │   └── database.py         # ✅ Setup SQLAlchemy
+│   │   ├── database.py         # ✅ Setup SQLAlchemy
+│   │   └── utils.py            # ✅ Funções auxiliares
 │   ├── models/
 │   │   ├── __init__.py         # ✅ Exports
 │   │   └── project.py          # ✅ Modelo Project
@@ -262,7 +325,7 @@ BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:8000
 ### Prioridade Alta
 - [x] Criar modelos de banco de dados em `app/models/`
 - [x] Criar schemas Pydantic em `app/schemas/`
-- [ ] Implementar routers em `app/api/v1/`
+- [x] Implementar routers em `app/api/v1/`
 - [ ] Configurar Alembic para migrações
 - [ ] Criar primeira migração do banco de dados
 

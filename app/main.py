@@ -43,10 +43,12 @@ async def health_check() -> dict[str, str]:
     }
 
 
-# TODO: Include API v1 router
-# from app.api.v1 import projects
-# app.include_router(
-#     projects.router,
-#     prefix=settings.API_V1_PREFIX,
-#     tags=["projects"]
-# )
+# Include API v1 routers
+from app.api.v1 import projects
+
+app.include_router(
+    projects.router,
+    prefix=f"{settings.API_V1_PREFIX}/projects",
+    tags=["projects"]
+)
+
